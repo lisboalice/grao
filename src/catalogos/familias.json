@@ -1,0 +1,8 @@
+[
+  { "id": "cacau", "nome": "Cacau", "exemplos": "chocolate, cacau" },
+  { "id": "frutos-secos", "nome": "Frutos secos", "exemplos": "amêndoa, avelã" },
+  { "id": "frutado", "nome": "Frutado", "exemplos": "frutos vermelhos, cítricos, tropical" },
+  { "id": "doce", "nome": "Doce", "exemplos": "mel, caramelo, baunilha" },
+  { "id": "floral", "nome": "Floral", "exemplos": "jasmim, chá" },
+  { "id": "especiarias", "nome": "Especiarias", "exemplos": "canela, noz-moscada" }
+]

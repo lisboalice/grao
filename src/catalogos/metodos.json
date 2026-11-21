@@ -1,0 +1,6 @@
+[
+  { "id": "v60", "nome": "V60" },
+  { "id": "prensa", "nome": "Prensa" },
+  { "id": "espresso", "nome": "Espresso" },
+  { "id": "aeropress", "nome": "Aeropress" }
+]

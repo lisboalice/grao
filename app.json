@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Grão a Grão",
+    "slug": "grao-a-grao",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#120E0B",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.pucminas.graoagrao",
+      "googleServicesFile": "./GoogleService-Info.plist"
+    },
+    "android": {
+      "package": "br.pucminas.graoagrao",
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "backgroundColor": "#120E0B",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["android.permission.CAMERA"],
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "ios": { "useFrameworks": "dynamic" },
+          "android": { "minSdkVersion": 26 }
+        }
+      ],
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "O Grão a Grão usa a câmera para fotografar a xícara ou a embalagem do café.",
+          "photosPermission": "O Grão a Grão acessa a galeria para você escolher a foto do café."
+        }
+      ],
+      "expo-sharing"
+    ]
+  }
+}

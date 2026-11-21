@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// Regras do Cloud Storage — fotos em users/{uid}/fotos (Tabela 10, RNF04).
+// Só o dono lê e grava; apenas imagens de até 5 MB.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{uid}/fotos/{arquivo} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

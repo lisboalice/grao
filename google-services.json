@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "676727940539",
+    "project_id": "grao-a-graoo",
+    "storage_bucket": "grao-a-graoo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676727940539:android:18df225aba62a2e72c909e",
+        "android_client_info": {
+          "package_name": "br.pucminas.graoagrao"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf617OJ4UcEVUQ6XR69apgvn4fBFVG8Xs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

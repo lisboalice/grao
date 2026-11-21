@@ -1,0 +1,8 @@
+[
+  { "id": "aroma", "nome": "Aroma", "oQueSente": "Cheiro do café moído ou passado", "dica": "Floral, frutado, chocolate...", "ancoraMin": "Discreto", "ancoraMax": "Intenso", "ordem": 1 },
+  { "id": "acidez", "nome": "Acidez", "oQueSente": "Sensação brilhante, cítrica", "dica": "Lembra limão, maçã verde ou é suave?", "ancoraMin": "Suave", "ancoraMax": "Vibrante", "ordem": 2 },
+  { "id": "corpo", "nome": "Corpo", "oQueSente": "Peso na boca", "dica": "Leve como chá, médio ou denso e cremoso?", "ancoraMin": "Leve", "ancoraMax": "Denso", "ordem": 3 },
+  { "id": "docura", "nome": "Doçura", "oQueSente": "Dulçor natural", "dica": "Mel, caramelo, açúcar mascavo", "ancoraMin": "Baixa", "ancoraMax": "Alta", "ordem": 4 },
+  { "id": "amargor", "nome": "Amargor", "oQueSente": "Amargo residual", "dica": "Café escuro, cacau intenso", "ancoraMin": "Baixo", "ancoraMax": "Alto", "ordem": 5 },
+  { "id": "retrogosto", "nome": "Retrogosto", "oQueSente": "Sabor que permanece", "dica": "Quanto tempo fica? É agradável?", "ancoraMin": "Curto", "ancoraMax": "Longo", "ordem": 6 }
+]

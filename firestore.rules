@@ -1,0 +1,83 @@
+rules_version = '2';
+
+// Regras do Cloud Firestore — Grão a Grão (seção 2 "Controle de acesso", RNF04 e RNF08).
+// - Cada usuário só lê e escreve os próprios dados (users/{uid}/...).
+// - Catálogos: somente leitura para usuários autenticados; escrita só pelo Admin SDK (script de seed).
+// - Valores dos atributos e nota geral validados entre 1 e 5 (restrições do DER).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function ehDono(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    function nota1a5(n) {
+      return n is int && n >= 1 && n <= 5;
+    }
+
+    function textoOpcional(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function perfilValido(d) {
+      return d.keys().hasOnly(['nome', 'email', 'tema', 'escalaNotas', 'criadoEm'])
+        && (!('tema' in d) || d.tema in ['escuro', 'claro'])
+        && (!('escalaNotas' in d) || d.escalaNotas in ['1-5', '1-10']);
+    }
+
+    function cafeValido(d) {
+      return d.keys().hasOnly(['nome', 'torrefacao', 'variedade', 'processo', 'torra', 'origem'])
+        && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 80
+        && textoOpcional(d.torrefacao, 80)
+        && textoOpcional(d.variedade, 60)
+        && textoOpcional(d.processo, 40)
+        && d.torra in ['', 'Clara', 'Média', 'Escura']
+        && (d.origem == null || (d.origem.pais is string && d.origem.lat is number && d.origem.lon is number));
+    }
+
+    function notasValidas(n) {
+      return n.keys().hasOnly(['aroma', 'acidez', 'corpo', 'docura', 'amargor', 'retrogosto'])
+        && nota1a5(n.aroma) && nota1a5(n.acidez) && nota1a5(n.corpo)
+        && nota1a5(n.docura) && nota1a5(n.amargor) && nota1a5(n.retrogosto);
+    }
+
+    function degustacaoValida(d) {
+      return d.keys().hasAll(['dataHora', 'notaGeral', 'metodo', 'cafeId', 'cafeResumo', 'notas', 'sabores'])
+        && d.keys().hasOnly(['dataHora', 'fotoPath', 'fotoUrl', 'fotoLocalUri', 'notaGeral', 'notasLivres',
+                             'receita', 'metodo', 'cafeId', 'cafeResumo', 'notas', 'sabores'])
+        && d.dataHora is timestamp
+        && nota1a5(d.notaGeral)
+        && d.metodo is string && d.metodo.size() > 0
+        && d.cafeId is string
+        && d.cafeResumo.nome is string && d.cafeResumo.nome.size() > 0
+        && notasValidas(d.notas)
+        && d.sabores is list && d.sabores.size() <= 12
+        && textoOpcional(d.notasLivres, 1000);
+    }
+
+    match /users/{uid} {
+      allow read, delete: if ehDono(uid);
+      allow create, update: if ehDono(uid) && perfilValido(request.resource.data);
+
+      match /cafes/{cafeId} {
+        allow read, delete: if ehDono(uid);
+        allow create, update: if ehDono(uid) && cafeValido(request.resource.data);
+      }
+
+      match /degustacoes/{degustacaoId} {
+        allow read, delete: if ehDono(uid);
+        allow create, update: if ehDono(uid) && degustacaoValida(request.resource.data);
+      }
+    }
+
+    // Catálogos de apoio: somente leitura.
+    match /{catalogo}/{id} {
+      allow read: if autenticado() && catalogo in ['origens', 'metodos', 'atributos', 'familias'];
+      allow write: if false;
+    }
+  }
+}
