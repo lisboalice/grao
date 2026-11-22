@@ -1,5 +1,4 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navegacao } from './src/navigation/Navegacao';
 import { TemaProvider, useTema } from './src/theme/TemaContext';

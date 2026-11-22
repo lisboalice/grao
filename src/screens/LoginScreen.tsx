@@ -1,12 +1,13 @@
 /**
  * Processo 1 — Autenticar-se (Figura 1, RF13).
- * E-mail e senha (mostrar/ocultar), Entrar, Criar conta e "Esqueci minha senha".
+ * E-mail e senha (mostrar/ocultar), Entrar, Criar conta, "Continuar com Google" e "Esqueci minha senha".
  * Erros aparecem abaixo do campo correspondente. Após o login, a navegação leva ao Diário.
  */
-import { Feather } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -22,18 +23,23 @@ import { mensagemErroAuth } from '../repositories/contaRepository';
 import { useTema } from '../theme/TemaContext';
 import { useAuth } from '../viewmodels/useAuth';
 
-type Erros = { email?: string; senha?: string; geral?: string };
+type Erros = { 
+  email?: string; 
+  senha?: string; 
+  geral?: string 
+};
+
 const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LoginScreen() {
   const { cores } = useTema();
   const insets = useSafeAreaInsets();
-  const { entrar, criarConta, recuperarSenha } = useAuth();
+  const { entrar, criarConta, recuperarSenha, entrarComGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erros, setErros] = useState<Erros>({});
-  const [acao, setAcao] = useState<'entrar' | 'criar' | 'recuperar' | null>(null);
+  const [acao, setAcao] = useState<'entrar' | 'criar' | 'recuperar' | 'google' | null>(null);
 
   function validar(criando: boolean): boolean {
     const novos: Erros = {};
@@ -55,6 +61,21 @@ export function LoginScreen() {
     } catch (e) {
       const { campo, mensagem } = mensagemErroAuth(e);
       setErros({ [campo]: mensagem });
+      setAcao(null);
+    }
+  }
+
+  async function executarGoogle() {
+    setErros({});
+    setAcao('google');
+    try {
+      await entrarComGoogle();
+      // O SessaoProvider detecta o login e a navegação troca para o Diário.
+    } catch (e) {
+      console.warn('Falha no login com Google:', JSON.stringify(e), (e as Error)?.message);
+      const { mensagem } = mensagemErroAuth(e);
+      // Cancelamento pelo usuário não é erro a ser exibido.
+      if (mensagem) setErros({ geral: mensagem });
       setAcao(null);
     }
   }
@@ -176,6 +197,34 @@ export function LoginScreen() {
           style={{ marginTop: 14 }}
         />
 
+        <View style={estilos.divisor}>
+          <View style={[estilos.linha, { backgroundColor: cores.borda }]} />
+          <TextoSecundario style={{ marginHorizontal: 12, fontSize: 14 }}>ou</TextoSecundario>
+          <View style={[estilos.linha, { backgroundColor: cores.borda }]} />
+        </View>
+
+        <Pressable
+          onPress={executarGoogle}
+          disabled={acao !== null}
+          accessibilityRole="button"
+          accessibilityLabel="Continuar com Google"
+          style={[
+            estilos.google,
+            { borderColor: cores.borda, opacity: acao !== null && acao !== 'google' ? 0.5 : 1 },
+          ]}
+        >
+          {acao === 'google' ? (
+            <ActivityIndicator color={cores.destaqueTexto} />
+          ) : (
+            <>
+              <AntDesign name="google" size={20} color={cores.texto} />
+              <Text style={{ color: cores.texto, fontSize: 17, fontWeight: '600', marginLeft: 12 }}>
+                Continuar com Google
+              </Text>
+            </>
+          )}
+        </Pressable>
+
         <TextoSecundario style={{ textAlign: 'center', marginTop: 40, lineHeight: 22, fontSize: 15 }}>
           Seus cafés ficam salvos na sua conta{'\n'}e funcionam mesmo sem internet.
         </TextoSecundario>
@@ -198,4 +247,14 @@ const estilos = StyleSheet.create({
   olho: { width: 52, height: 52, alignItems: 'center', justifyContent: 'center' },
   esqueci: { alignSelf: 'flex-end', minHeight: 48, justifyContent: 'center', marginBottom: 18 },
   erroGeral: { fontSize: 14, marginBottom: 12, textAlign: 'center' },
+  divisor: { flexDirection: 'row', alignItems: 'center', marginVertical: 22 },
+  linha: { flex: 1, height: StyleSheet.hairlineWidth },
+  google: {
+    minHeight: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

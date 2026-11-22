@@ -44,3 +44,5 @@ yarn-error.*
 scripts/service-account.json
 firebase-debug.log
 firestore-debug.log
+
+.env

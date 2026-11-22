@@ -2,7 +2,7 @@
  * ViewModel da sessão (useAuth): estado de login, perfil do usuário e ações de conta.
  * Também aplica o tema salvo no perfil (RF12).
  */
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { PerfilUsuario } from '../models/tipos';
 import { contaRepository, PERFIL_PADRAO, Usuario } from '../repositories/contaRepository';
 import { degustacaoRepository } from '../repositories/degustacaoRepository';
@@ -15,6 +15,7 @@ interface SessaoValor {
   entrar: (email: string, senha: string) => Promise<void>;
   criarConta: (email: string, senha: string) => Promise<void>;
   recuperarSenha: (email: string) => Promise<void>;
+  entrarComGoogle: () => Promise<void>;
   sair: () => Promise<void>;
   atualizarPreferencias: (dados: Partial<Pick<PerfilUsuario, 'tema' | 'escalaNotas'>>) => void;
   excluirContaEDados: (senha: string) => Promise<void>;
@@ -84,6 +85,7 @@ export function SessaoProvider({ children }: { children: React.ReactNode }) {
     entrar: (email, senha) => contaRepository.entrar(email, senha),
     criarConta: (email, senha) => contaRepository.criarConta(email, senha),
     recuperarSenha: (email) => contaRepository.recuperarSenha(email),
+    entrarComGoogle: () => contaRepository.entrarComGoogle(),
     sair: () => contaRepository.sair(),
     atualizarPreferencias,
     excluirContaEDados,
