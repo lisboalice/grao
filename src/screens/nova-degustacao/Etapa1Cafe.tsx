@@ -6,13 +6,14 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { Controller, UseFormReturn, useWatch } from 'react-hook-form';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SeletorOpcoes } from '../../components/Folhas';
 import { CampoTexto, Chip, Rotulo } from '../../components/ui';
 import { DegustacaoForm } from '../../models/esquemas';
 import { NIVEIS_TORRA, Origem, PROCESSOS } from '../../models/tipos';
 import { escolherFoto, OrigemFoto, PermissaoNegadaError } from '../../services/fotos';
 import { raios, useTema } from '../../theme/TemaContext';
+import { exibirAlerta } from '../../utils/alerta';
 import { normalizar } from '../../utils/calculos';
 import { useDados } from '../../viewmodels/DadosContext';
 
@@ -50,7 +51,7 @@ export function Etapa1Cafe({ form, razao }: Props) {
       if (uri) setValue('fotoUri', uri, { shouldDirty: true });
     } catch (e) {
       const msg = e instanceof PermissaoNegadaError ? e.message : 'Não foi possível carregar a foto.';
-      Alert.alert('Foto', msg);
+      exibirAlerta('Foto', msg);
     } finally {
       setProcessandoFoto(false);
     }

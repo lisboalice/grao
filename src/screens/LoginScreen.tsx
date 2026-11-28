@@ -8,7 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -21,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Botao, CampoTexto, TextoSecundario, Titulo } from '../components/ui';
 import { mensagemErroAuth } from '../repositories/contaRepository';
 import { useTema } from '../theme/TemaContext';
+import { exibirAlerta } from '../utils/alerta';
 import { useAuth } from '../viewmodels/useAuth';
 
 type Erros = { 
@@ -89,7 +89,7 @@ export function LoginScreen() {
     try {
       await recuperarSenha(email);
       setErros({});
-      Alert.alert('Verifique seu e-mail', `Enviamos um link para redefinir a senha para ${email.trim()}.`);
+      exibirAlerta('Verifique seu e-mail', `Enviamos um link para redefinir a senha para ${email.trim()}.`);
     } catch (e) {
       const { campo, mensagem } = mensagemErroAuth(e);
       setErros({ [campo]: mensagem });

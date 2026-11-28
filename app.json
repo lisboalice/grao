@@ -26,6 +26,10 @@
       ],
       "predictiveBackGestureEnabled": false
     },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/auth",

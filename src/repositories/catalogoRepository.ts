@@ -4,13 +4,12 @@
  * (scripts/seed-catalogos.ts). Se o Firestore ainda não tiver os catálogos ou não responder,
  * o app usa a cópia embutida em src/catalogos (mesmos arquivos usados pelo script).
  */
-import { collection, getDocs } from '@react-native-firebase/firestore';
 import atributosJson from '../catalogos/atributos.json';
 import familiasJson from '../catalogos/familias.json';
 import metodosJson from '../catalogos/metodos.json';
 import origensJson from '../catalogos/origens.json';
 import { AtributoSensorial, FamiliaSabor, MetodoPreparo, Origem } from '../models/tipos';
-import { db } from '../services/firebase';
+import { collection, db, getDocs } from '../services/firebase';
 
 export interface Catalogos {
   origens: Origem[];

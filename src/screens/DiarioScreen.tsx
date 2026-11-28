@@ -8,7 +8,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SeletorOpcoes } from '../components/Folhas';
 import { Miniatura, uriDaFoto } from '../components/Miniatura';
@@ -132,7 +132,7 @@ export function DiarioScreen({ navigation, route }: Props) {
         initialNumToRender={8}
         maxToRenderPerBatch={10}
         windowSize={7}
-        removeClippedSubviews
+        removeClippedSubviews={Platform.OS !== 'web'}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         renderItem={({ item }) => (
           <CartaoDegustacao degustacao={item} onPress={() => navigation.navigate('Detalhe', { id: item.id })} />

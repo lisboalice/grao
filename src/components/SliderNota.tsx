@@ -5,7 +5,7 @@
  */
 import { Feather } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
-import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
+import { PanResponder, Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import type { HostInstance } from 'react-native';
 import { AtributoSensorial } from '../models/tipos';
 import { useTema } from '../theme/TemaContext';
@@ -98,7 +98,7 @@ export function SliderNota({ atributo, valor, onChange }: Props) {
       <View
         ref={trilha}
         onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
-        style={estilos.area}
+        style={[estilos.area, Platform.OS === 'web' && ({ userSelect: 'none' } as ViewStyle)]}
         accessible
         accessibilityRole="adjustable"
         accessibilityLabel={`${atributo.nome}. ${atributo.dica}`}

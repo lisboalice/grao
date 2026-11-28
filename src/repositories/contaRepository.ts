@@ -1,24 +1,28 @@
 /**
  * contaRepository — Firebase Authentication (e-mail e senha, Google) e o perfil em users/{uid} (RF13).
  */
-import { GoogleSignin, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import { PerfilUsuario } from '../models/tipos';
 import {
+  auth,
   createUserWithEmailAndPassword,
+  db,
+  deleteDoc,
   deleteUser,
+  doc,
   EmailAuthProvider,
-  GoogleAuthProvider,
+  entrarComGoogleFirebase,
+  getDoc,
   onAuthStateChanged,
+  onSnapshot,
   reauthenticateWithCredential,
   sendPasswordResetEmail,
-  signInWithCredential,
+  serverTimestamp,
+  setDoc,
   signInWithEmailAndPassword,
   signOut,
-} from '@react-native-firebase/auth';
-import type { User } from '@react-native-firebase/auth';
-import { deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc } from '@react-native-firebase/firestore';
-import type { Unsubscribe } from '@react-native-firebase/firestore';
-import { PerfilUsuario } from '../models/tipos';
-import { auth, db } from '../services/firebase';
+  type Unsubscribe,
+  type User,
+} from '../services/firebase';
 
 export type Usuario = User;
 
@@ -34,14 +38,6 @@ function nomeDoEmail(email: string): string {
   return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
-let googleConfigurado = false;
-function configurarGoogle() {
-  if (googleConfigurado) return;
-  // ID do cliente "Web" do Google Cloud / Firebase (Authentication > Google > Web SDK).
-  GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID });
-  googleConfigurado = true;
-}
-
 export const contaRepository = {
   observarSessao(aoMudar: (usuario: Usuario | null) => void): Unsubscribe {
     return onAuthStateChanged(auth, aoMudar);
@@ -51,33 +47,10 @@ export const contaRepository = {
     await signInWithEmailAndPassword(auth, email.trim(), senha);
   },
 
-  /** Login com Google: obtém o idToken pelo SDK nativo e troca por uma sessão do Firebase. */
+  /** Login com Google: usa o SDK nativo no celular ou pop-up no navegador. */
   async entrarComGoogle(): Promise<void> {
-    configurarGoogle();
-    try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const resposta = await GoogleSignin.signIn();
-      if (resposta.type !== 'success') {
-        throw { code: 'google/cancelado' };
-      }
-      if (!resposta.data.idToken) {
-        // Conta escolhida, mas sem token: o webClientId está ausente ou errado.
-        throw { code: 'google/sem-token' };
-      }
-      const cred = GoogleAuthProvider.credential(resposta.data.idToken);
-      const { user } = await signInWithCredential(auth, cred);
-      await this.garantirPerfil(user);
-    } catch (e) {
-      if (isErrorWithCode(e)) {
-        if (e.code === statusCodes.SIGN_IN_CANCELLED || e.code === statusCodes.IN_PROGRESS) {
-          throw { code: 'google/cancelado' };
-        }
-        if (e.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          throw { code: 'google/play-services' };
-        }
-      }
-      throw e;
-    }
+    const user = await entrarComGoogleFirebase();
+    await this.garantirPerfil(user);
   },
 
   async criarConta(email: string, senha: string): Promise<void> {
@@ -164,6 +137,8 @@ export function mensagemErroAuth(erro: unknown): { campo: 'email' | 'senha' | 'g
       return { campo: 'geral', mensagem: 'Login com Google mal configurado (webClientId). Verifique o .env.' };
     case 'google/play-services':
       return { campo: 'geral', mensagem: 'Google Play Services indisponível neste aparelho.' };
+    case 'auth/popup-blocked':
+      return { campo: 'geral', mensagem: 'O navegador bloqueou a janela de login. Permita pop-ups e tente de novo.' };
     case 'auth/account-exists-with-different-credential':
       return { campo: 'geral', mensagem: 'Já existe uma conta com este e-mail. Entre com e-mail e senha.' };
     case 'auth/too-many-requests':

@@ -11,7 +11,6 @@ import Constants from 'expo-constants';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -28,6 +27,7 @@ import { AbasParams, PilhaParams } from '../navigation/tipos';
 import { mensagemErroAuth } from '../repositories/contaRepository';
 import { exportarHistoricoCsv } from '../services/exportacao';
 import { raios, useTema } from '../theme/TemaContext';
+import { exibirAlerta } from '../utils/alerta';
 import { useAuth } from '../viewmodels/useAuth';
 import { useDados } from '../viewmodels/DadosContext';
 
@@ -52,7 +52,7 @@ export function ConfigScreen({ navigation }: Props) {
       : { icone: 'cloud' as const, texto: 'Sincronizado agora' };
 
   function confirmarSair() {
-    Alert.alert('Sair da conta?', pendentes ? 'Há alterações ainda não sincronizadas. Conecte-se à internet antes de sair para não perdê-las.' : undefined, [
+    exibirAlerta('Sair da conta?', pendentes ? 'Há alterações ainda não sincronizadas. Conecte-se à internet antes de sair para não perdê-las.' : undefined, [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Sair', style: 'destructive', onPress: () => sair() },
     ]);
@@ -60,14 +60,14 @@ export function ConfigScreen({ navigation }: Props) {
 
   async function exportar() {
     if (degustacoes.length === 0) {
-      Alert.alert('Nada para exportar', 'Registre uma degustação primeiro.');
+      exibirAlerta('Nada para exportar', 'Registre uma degustação primeiro.');
       return;
     }
     setExportando(true);
     try {
       await exportarHistoricoCsv(usuario!.uid, degustacoes);
     } catch (e) {
-      Alert.alert('Exportar histórico', (e as Error).message || 'Não foi possível gerar o arquivo.');
+      exibirAlerta('Exportar histórico', (e as Error).message || 'Não foi possível gerar o arquivo.');
     } finally {
       setExportando(false);
     }

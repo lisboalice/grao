@@ -9,28 +9,34 @@
  * - A foto é enviada depois ao Cloud Storage; o documento é atualizado com fotoPath/fotoUrl.
  */
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-  writeBatch,
-} from '@react-native-firebase/firestore';
-import type { DocumentData, Unsubscribe } from '@react-native-firebase/firestore';
-import { deleteObject, getDownloadURL, listAll, putFile, ref } from '@react-native-firebase/storage';
-import {
   Cafe,
   CafeResumo,
   Degustacao,
   NotasSensoriais,
   Receita,
 } from '../models/tipos';
-import { db, storage } from '../services/firebase';
+import {
+  collection,
+  db,
+  deleteDoc,
+  deleteObject,
+  doc,
+  enviarArquivoStorage,
+  getDoc,
+  getDocs,
+  getDownloadURL,
+  listAll,
+  onSnapshot,
+  orderBy,
+  query,
+  ref,
+  storage,
+  Timestamp,
+  updateDoc,
+  writeBatch,
+  type DocumentData,
+  type Unsubscribe,
+} from '../services/firebase';
 import { apagarArquivoLocal, arquivoLocalExiste } from '../services/fotos';
 import { gerarIdCafe } from '../utils/calculos';
 
@@ -216,7 +222,7 @@ export const degustacaoRepository = {
     enviosEmAndamento.add(id);
     try {
       const referencia = ref(storage, caminhoFoto(uid, id));
-      await putFile(referencia, uriLocal, { contentType: 'image/jpeg' });
+      await enviarArquivoStorage(referencia, uriLocal, 'image/jpeg');
       const url = await getDownloadURL(referencia);
       await updateDoc(doc(colDegustacoes(uid), id), {
         fotoPath: caminhoFoto(uid, id),

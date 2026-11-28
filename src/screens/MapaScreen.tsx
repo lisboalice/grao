@@ -5,26 +5,19 @@
  * cafés daquela origem e cada item abre o detalhe. Os tiles exigem conexão (RNF03).
  */
 import { Feather } from '@expo/vector-icons';
-import {
-  Camera,
-  CameraRef,
-  Map,
-  Marker,
-  StyleSpecification,
-} from '@maplibre/maplibre-react-native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheet } from '../components/Folhas';
+import { MapaOrigens } from '../components/MapaOrigens';
 import { Miniatura, uriDaFoto } from '../components/Miniatura';
 import { CabecalhoTela, Chip, Estrelas } from '../components/ui';
-import { Paleta } from '../theme/cores';
-import { ModoTema, raios, useTema } from '../theme/TemaContext';
 import { AbasParams, PilhaParams } from '../navigation/tipos';
-import { formatarNota, raioMarcador } from '../utils/calculos';
+import { raios, useTema } from '../theme/TemaContext';
+import { formatarNota } from '../utils/calculos';
 import { useAuth } from '../viewmodels/useAuth';
 import { useDados } from '../viewmodels/DadosContext';
 import { FILTROS_CONTINENTE, useMapa } from '../viewmodels/useMapa';
@@ -43,46 +36,12 @@ const DO_CONTINENTE: Record<string, string> = {
   Oceania: 'da Oceania',
 };
 
-/** Estilo do mapa: tiles raster do OpenStreetMap, escurecidos no tema escuro. */
-function estiloMapa(cores: Paleta, modo: ModoTema): StyleSpecification {
-  return {
-    version: 8,
-    sources: {
-      osm: {
-        type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        tileSize: 256,
-        maxzoom: 19,
-        attribution: '© OpenStreetMap contributors',
-      },
-    },
-    layers: [
-      { id: 'fundo', type: 'background', paint: { 'background-color': cores.superficie } },
-      {
-        id: 'osm',
-        type: 'raster',
-        source: 'osm',
-        paint:
-          modo === 'escuro'
-            ? { 'raster-saturation': -0.9, 'raster-brightness-max': 0.32, 'raster-contrast': 0.15, 'raster-hue-rotate': 20 }
-            : { 'raster-saturation': -0.7, 'raster-brightness-min': 0.12 },
-      },
-    ],
-  };
-}
-
 export function MapaScreen({ navigation }: Props) {
-  const { cores, modo } = useTema();
+  const { cores } = useTema();
   const insets = useSafeAreaInsets();
   const { perfil } = useAuth();
   const { online } = useDados();
   const vm = useMapa();
-  const camera = useRef<CameraRef>(null);
-  const estilo = useMemo(() => estiloMapa(cores, modo), [cores, modo]);
-
-  useEffect(() => {
-    camera.current?.fitBounds(vm.limites, { duration: 600, padding: { top: 24, bottom: 24, left: 24, right: 24 } });
-  }, [vm.limites]);
 
   const sel = vm.selecionado;
 
@@ -104,56 +63,14 @@ export function MapaScreen({ navigation }: Props) {
       </View>
 
       <View style={[estilos.cartaoMapa, { borderColor: cores.borda, backgroundColor: cores.superficie }]}>
-        <Map
-          style={{ flex: 1 }}
-          mapStyle={estilo}
-          logo={false}
-          attribution
-          compass={false}
-          touchRotate={false}
-          touchPitch={false}
-          onPress={vm.fechar}
-        >
-          <Camera ref={camera} initialViewState={{ bounds: vm.limites }} minZoom={0} maxZoom={7} />
-          {vm.grupos.map((g) => {
-            const raio = raioMarcador(g.qtd, vm.maximo);
-            const ativo = sel?.pais === g.pais;
-            return (
-              <Marker
-                key={g.pais}
-                id={`pais-${g.pais}`}
-                lngLat={[g.lon, g.lat]}
-                anchor="center"
-                onPress={() => vm.selecionar(g.pais)}
-              >
-                <View
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel={`${g.pais}: ${g.qtd} ${g.qtd === 1 ? 'café' : 'cafés'}`}
-                  style={[
-                    estilos.halo,
-                    { width: raio * 2 + 14, height: raio * 2 + 14, borderRadius: raio + 7, backgroundColor: cores.destaqueSuave },
-                  ]}
-                >
-                  <View
-                    style={{
-                      width: raio * 2,
-                      height: raio * 2,
-                      borderRadius: raio,
-                      backgroundColor: ativo ? cores.destaque : '#B8732A',
-                      borderWidth: 2,
-                      borderColor: '#2A1A0E',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text style={{ color: '#1A120C', fontWeight: '800', fontSize: raio > 20 ? 18 : 14 }}>{g.qtd}</Text>
-                  </View>
-                </View>
-              </Marker>
-            );
-          })}
-        </Map>
+        <MapaOrigens
+          grupos={vm.grupos}
+          maximo={vm.maximo}
+          limites={vm.limites}
+          paisSelecionado={sel?.pais ?? null}
+          onSelecionar={vm.selecionar}
+          onFechar={vm.fechar}
+        />
 
         {!online && (
           <View style={[estilos.avisoMapa, { backgroundColor: cores.superficieElevada }]}>
@@ -236,7 +153,6 @@ const estilos = StyleSheet.create({
     borderRadius: raios.grande,
     overflow: 'hidden',
   },
-  halo: { alignItems: 'center', justifyContent: 'center' },
   avisoMapa: {
     position: 'absolute',
     top: 10,

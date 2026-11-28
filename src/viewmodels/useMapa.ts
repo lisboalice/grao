@@ -4,15 +4,15 @@
  */
 import { useMemo, useState } from 'react';
 import { Continente } from '../models/tipos';
-import type { LngLatBounds } from '@maplibre/maplibre-react-native';
 import { agruparPorPais } from '../utils/calculos';
 import { useDados } from './DadosContext';
 
+export type LimitesMapa = [number, number, number, number];
 export type FiltroContinente = 'Todos' | Continente;
 export const FILTROS_CONTINENTE: FiltroContinente[] = ['Todos', 'Américas', 'África', 'Ásia', 'Oceania'];
 
 /** Enquadramento do mapa para cada filtro: [oeste, sul, leste, norte]. */
-export const LIMITES_CONTINENTE: Record<FiltroContinente, LngLatBounds> = {
+export const LIMITES_CONTINENTE: Record<FiltroContinente, LimitesMapa> = {
   Todos: [-170, -50, 170, 65],
   Américas: [-160, -40, -30, 30],
   África: [-20, -30, 55, 20],

@@ -51,6 +51,7 @@ Implementa os protótipos e as especificações do documento do projeto (seçõe
    ```bash
    npx expo run:android     # compila o development build e instala no emulador/aparelho
    npx expo run:ios         # (macOS)
+   npm run web              # abre no navegador via Expo Web
    npm start                # depois da primeira compilação, só para recarregar o JS
    ```
 

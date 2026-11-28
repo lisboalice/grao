@@ -5,7 +5,7 @@
  */
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { raios, useTema } from '../theme/TemaContext';
 import { Titulo } from './ui';
@@ -93,7 +93,7 @@ export function BottomSheet({
     Animated.timing(deslocamento, {
       toValue: visivel ? 0 : 500,
       duration: 260,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start();
   }, [visivel, deslocamento]);
 

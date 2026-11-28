@@ -7,7 +7,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   BackHandler,
   KeyboardAvoidingView,
   Platform,
@@ -21,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BotaoIcone, Botao, Titulo } from '../../components/ui';
 import { PilhaParams } from '../../navigation/tipos';
 import { useTema } from '../../theme/TemaContext';
+import { exibirAlerta } from '../../utils/alerta';
 import { useDegustacaoForm } from '../../viewmodels/useDegustacaoForm';
 import { Etapa1Cafe } from './Etapa1Cafe';
 import { Etapa2Sensorial } from './Etapa2Sensorial';
@@ -39,7 +39,7 @@ export function NovaDegustacaoScreen({ navigation, route }: Props) {
 
   // Pede confirmação antes de descartar um rascunho com alterações.
   usePreventRemove(vm.form.formState.isDirty && !salvo, ({ data }) => {
-    Alert.alert('Descartar alterações?', 'O que você preencheu será perdido.', [
+    exibirAlerta('Descartar alterações?', 'O que você preencheu será perdido.', [
       { text: 'Continuar editando', style: 'cancel' },
       { text: 'Descartar', style: 'destructive', onPress: () => navigation.dispatch(data.action) },
     ]);
@@ -48,6 +48,7 @@ export function NovaDegustacaoScreen({ navigation, route }: Props) {
   // No Android, o botão "voltar" do sistema volta uma etapa antes de sair.
   useFocusEffect(
     useCallback(() => {
+      if (Platform.OS !== 'android') return;
       const sub = BackHandler.addEventListener('hardwareBackPress', () => vm.voltar());
       return () => sub.remove();
     }, [vm]),
@@ -63,7 +64,7 @@ export function NovaDegustacaoScreen({ navigation, route }: Props) {
 
   useEffect(() => {
     if (vm.naoEncontrada) {
-      Alert.alert('Degustação não encontrada', 'Ela pode ter sido excluída.');
+      exibirAlerta('Degustação não encontrada', 'Ela pode ter sido excluída.');
       navigation.goBack();
     }
   }, [vm.naoEncontrada, navigation]);
@@ -80,7 +81,7 @@ export function NovaDegustacaoScreen({ navigation, route }: Props) {
     vm.salvar(
       () => setSalvo(true),
       () =>
-        Alert.alert(
+        exibirAlerta(
           'Não foi possível sincronizar',
           'A degustação foi recusada pelo servidor. Verifique os dados e tente novamente.',
         ),

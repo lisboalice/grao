@@ -7,13 +7,14 @@ import { Feather } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GraficoRadar } from '../components/Graficos';
 import { uriDaFoto } from '../components/Miniatura';
 import { Botao, BotaoIcone, Cartao, Chip, Estrelas, TextoSecundario, Titulo } from '../components/ui';
 import { PilhaParams } from '../navigation/tipos';
 import { raios, useTema } from '../theme/TemaContext';
+import { exibirAlerta } from '../utils/alerta';
 import { calcularRazao } from '../utils/calculos';
 import { formatarDataLonga } from '../utils/datas';
 import { useDados } from '../viewmodels/DadosContext';
@@ -58,14 +59,14 @@ export function DetalheScreen({ navigation, route }: Props) {
       : null;
 
   function confirmarExclusao() {
-    Alert.alert('Excluir degustação?', `"${d!.cafeResumo.nome}" e a foto serão apagados. Esta ação não pode ser desfeita.`, [
+    exibirAlerta('Excluir degustação?', `"${d!.cafeResumo.nome}" e a foto serão apagados. Esta ação não pode ser desfeita.`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
         style: 'destructive',
         onPress: () => {
           excluir().catch(() =>
-            Alert.alert('Erro', 'Não foi possível excluir no servidor. Tente novamente com internet.'),
+            exibirAlerta('Erro', 'Não foi possível excluir no servidor. Tente novamente com internet.'),
           );
           sair();
         },
